@@ -133,11 +133,17 @@ a {
   margin-bottom: 8px;
 }
 .calendar-item {
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #eee;
 }
 .calendar-item:last-child {
   border-bottom: none;
+}
+.calendar-line {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 .date {
   font-weight: bold;
@@ -556,10 +562,11 @@ function renderCalendar() {
       const item = document.createElement("div");
       item.className = "calendar-item";
       item.innerHTML = `
-        <div class="date">${e.month}/${e.day}</div>
-        <div>${e.fanMark} ${e.name}</div>
-        <div class="field-name">${e.fieldLabel}</div>
-        <div class="small">${linkify(e.value)}</div>
+        <div class="calendar-line">
+          <span class="date">${e.month}/${e.day}</span>
+          <span>${e.fanMark} ${e.name}</span>
+          <span class="field-name">${e.fieldLabel}</span>
+        </div>
       `;
       block.appendChild(item);
     });
