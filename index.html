@@ -243,7 +243,8 @@ function renderCards() {
 
       const item = document.createElement("div");
       item.className = "item";
-      item.innerHTML = `<span>${field.label}</span>${value}`;
+      item.innerHTML = `<span>${field.label}</span>${linkify(value)}`;
+    
       card.appendChild(item);
     });
 
@@ -329,6 +330,20 @@ function renderAll() {
   renderInputFields();
   renderCards();
   renderFieldList();
+}
+  function linkify(text) {
+  if (!text) return "";
+
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+
+  return escaped.replace(urlPattern, url => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
 }
 
 renderAll();
