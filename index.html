@@ -23,9 +23,11 @@
     position: sticky;
     top: 0;
     z-index: 10;
+    overflow-x: auto;
   }
   nav button {
     flex: 1;
+    min-width: 90px;
     padding: 12px;
     border: none;
     background: #dceee0;
@@ -77,7 +79,7 @@
     flex: 1;
   }
   .field-row button {
-    width: 70px;
+    width: 48px;
   }
   .cards {
     display: flex;
@@ -100,6 +102,7 @@
   .item {
     padding: 8px 0;
     border-bottom: 1px solid #eee;
+    word-break: break-word;
   }
   .item span {
     display: block;
@@ -110,6 +113,37 @@
     font-size: 13px;
     color: #666;
   }
+  a {
+    color: #2878b8;
+  }
+  .month-block {
+    background: white;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  }
+  .month-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #5f936b;
+    margin-bottom: 8px;
+  }
+  .calendar-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .calendar-item:last-child {
+    border-bottom: none;
+  }
+  .date {
+    font-weight: bold;
+    color: #333;
+  }
+  .field-name {
+    font-size: 13px;
+    color: #777;
+  }
 </style>
 </head>
 <body>
@@ -118,8 +152,9 @@
 
 <nav>
   <button class="active" onclick="showPage('input', this)">入力</button>
-  <button onclick="showPage('cards', this)">カード表示</button>
-  <button onclick="showPage('fields', this)">項目管理</button>
+  <button onclick="showPage('cards', this)">各VTuber</button>
+  <button onclick="showPage('calendar', this)">推し活カレンダー</button>
+  <button onclick="showPage('fields', this)">項目マスタ</button>
 </nav>
 
 <section id="input" class="active">
@@ -129,17 +164,23 @@
 </section>
 
 <section id="cards">
-  <h2>登録した配信者</h2>
+  <h2>各VTuber</h2>
   <p class="small">横にスワイプしてカードを移動できます。</p>
   <div class="cards" id="cardList"></div>
 </section>
 
+<section id="calendar">
+  <h2>推し活カレンダー</h2>
+  <p class="small">各VTuberの項目から月日を自動で抜き出し、4月から3月の順に表示します。</p>
+  <div id="calendarList"></div>
+</section>
+
 <section id="fields">
-  <h2>項目管理</h2>
+  <h2>項目マスタ</h2>
   <p class="small">ここで追加した項目は、全員に同じ順番で表示されます。</p>
 
   <label>新しい項目名</label>
-  <input id="newFieldName" placeholder="例：推しカラー">
+  <input id="newFieldName" placeholder="例：推しカラー、YouTube、X、初配信日">
   <button class="main" onclick="addField()">項目を追加</button>
 
   <h3>現在の項目</h3>
@@ -238,13 +279,11 @@ function renderCards() {
 
     fields.forEach(field => {
       const value = v[field.key];
-
       if (!value) return;
 
       const item = document.createElement("div");
       item.className = "item";
       item.innerHTML = `<span>${field.label}</span>${linkify(value)}`;
-    
       card.appendChild(item);
     });
 
@@ -277,7 +316,6 @@ function addField() {
   });
 
   document.getElementById("newFieldName").value = "";
-
   saveData();
   renderAll();
 }
@@ -326,12 +364,7 @@ function moveField(index, direction) {
   renderAll();
 }
 
-function renderAll() {
-  renderInputFields();
-  renderCards();
-  renderFieldList();
-}
-  function linkify(text) {
+function linkify(text) {
   if (!text) return "";
 
   const escaped = text
@@ -344,6 +377,126 @@ function renderAll() {
   return escaped.replace(urlPattern, url => {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
+}
+
+function extractDates(text) {
+  if (!text) return [];
+
+  const results = [];
+  const str = String(text);
+
+  const patterns = [
+    /(\d{1,2})月\s*(\d{1,2})日/g,
+    /(\d{1,2})\/(\d{1,2})/g,
+    /(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/g,
+    /(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/g
+  ];
+
+  let match;
+
+  while ((match = patterns[0].exec(str)) !== null) {
+    results.push({ month: Number(match[1]), day: Number(match[2]) });
+  }
+
+  while ((match = patterns[1].exec(str)) !== null) {
+    results.push({ month: Number(match[1]), day: Number(match[2]) });
+  }
+
+  while ((match = patterns[2].exec(str)) !== null) {
+    results.push({ month: Number(match[2]), day: Number(match[3]) });
+  }
+
+  while ((match = patterns[3].exec(str)) !== null) {
+    results.push({ month: Number(match[2]), day: Number(match[3]) });
+  }
+
+  return results.filter(d =>
+    d.month >= 1 && d.month <= 12 &&
+    d.day >= 1 && d.day <= 31
+  );
+}
+
+function fiscalMonthOrder(month) {
+  return month >= 4 ? month : month + 12;
+}
+
+function renderCalendar() {
+  const area = document.getElementById("calendarList");
+  area.innerHTML = "";
+
+  const events = [];
+
+  vtubers.forEach(v => {
+    fields.forEach(field => {
+      if (field.key === "name" || field.key === "fanMark") return;
+
+      const value = v[field.key];
+      if (!value) return;
+
+      const dates = extractDates(value);
+
+      dates.forEach(d => {
+        events.push({
+          month: d.month,
+          day: d.day,
+          name: v.name || "名前未登録",
+          fanMark: v.fanMark || "",
+          fieldLabel: field.label,
+          value: value
+        });
+      });
+    });
+  });
+
+  events.sort((a, b) => {
+    const ma = fiscalMonthOrder(a.month);
+    const mb = fiscalMonthOrder(b.month);
+
+    if (ma !== mb) return ma - mb;
+    if (a.day !== b.day) return a.day - b.day;
+    return a.name.localeCompare(b.name, "ja");
+  });
+
+  if (events.length === 0) {
+    area.innerHTML = "<p>まだカレンダーに表示できる日付がありません。</p>";
+    return;
+  }
+
+  const monthOrder = [4,5,6,7,8,9,10,11,12,1,2,3];
+
+  monthOrder.forEach(month => {
+    const monthEvents = events.filter(e => e.month === month);
+    if (monthEvents.length === 0) return;
+
+    const block = document.createElement("div");
+    block.className = "month-block";
+
+    const title = document.createElement("div");
+    title.className = "month-title";
+    title.textContent = `${month}月`;
+    block.appendChild(title);
+
+    monthEvents.forEach(e => {
+      const item = document.createElement("div");
+      item.className = "calendar-item";
+      item.innerHTML = `
+        <div class="date">${e.month}/${e.day}</div>
+        <div>${e.fanMark} ${e.name}</div>
+        <div class="field-name">${e.fieldLabel}</div>
+        <div class="small">${linkify(e.value)}</div>
+      `;
+      block.appendChild(item);
+    });
+
+    area.appendChild(block);
+  });
+}
+
+function renderAll() {
+  renderInputFields();
+  renderCards();
+  renderFieldList();
+  renderCalendar();
 }
 
 renderAll();
