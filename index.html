@@ -5,153 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VTuberプロフィール管理</title>
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  background: #f5f7f5;
-  color: #333;
-}
-header {
-  background: #9fc8a8;
-  color: white;
-  padding: 14px;
-  text-align: center;
-  font-weight: bold;
-}
-nav {
-  display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  overflow-x: auto;
-}
-nav button {
-  flex: 1;
-  min-width: 90px;
-  padding: 12px;
-  border: none;
-  background: #dceee0;
-  font-weight: bold;
-}
-nav button.active {
-  background: #9fc8a8;
-  color: white;
-}
-section {
-  display: none;
-  padding: 16px;
-}
-section.active {
-  display: block;
-}
-label {
-  display: block;
-  margin-top: 12px;
-  font-weight: bold;
-}
-input {
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  margin-top: 4px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-button.main {
-  width: 100%;
-  margin-top: 12px;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #7fb58a;
-  color: white;
-  font-weight: bold;
-}
-button.sub {
-  background: #8aa8c8;
-}
-button.danger {
-  background: #c46b6b;
-}
-.field-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-.field-row input {
-  flex: 1;
-}
-.field-row button {
-  width: 48px;
-}
-.cards {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 16px;
-  padding-bottom: 20px;
-}
-.card {
-  min-width: 86%;
-  background: white;
-  border-radius: 18px;
-  padding: 18px;
-  scroll-snap-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-.card h2 {
-  margin-top: 0;
-}
-.item {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-  word-break: break-word;
-}
-.item span {
-  display: block;
-  font-size: 12px;
-  color: #777;
-}
-.small {
-  font-size: 13px;
-  color: #666;
-}
-a {
-  color: #2878b8;
-}
-.month-block {
-  background: white;
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-}
-.month-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #5f936b;
-  margin-bottom: 8px;
-}
-.calendar-item {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-.calendar-item:last-child {
-  border-bottom: none;
-}
-.calendar-line {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.date {
-  font-weight: bold;
-}
-.field-name {
-  font-size: 13px;
-  color: #777;
-}
+body{font-family:system-ui,sans-serif;margin:0;background:#f5f7f5;color:#333}
+header{background:#9fc8a8;color:white;padding:14px;text-align:center;font-weight:bold}
+nav{display:flex;position:sticky;top:0;z-index:10;overflow-x:auto}
+nav button{flex:1;min-width:90px;padding:12px;border:none;background:#dceee0;font-weight:bold}
+nav button.active{background:#9fc8a8;color:white}
+section{display:none;padding:16px}
+section.active{display:block}
+label{display:block;margin-top:12px;font-weight:bold}
+input,select{width:100%;padding:10px;box-sizing:border-box;margin-top:4px;border:1px solid #ccc;border-radius:8px}
+button.main{width:100%;margin-top:12px;padding:12px;border:none;border-radius:10px;background:#7fb58a;color:white;font-weight:bold}
+button.sub{background:#8aa8c8}
+button.danger{background:#c46b6b}
+.cards{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:16px;padding-bottom:20px}
+.card{min-width:86%;background:white;border-radius:18px;padding:18px;scroll-snap-align:center;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.item{padding:8px 0;border-bottom:1px solid #eee;word-break:break-word}
+.item span{display:block;font-size:12px;color:#777}
+.small{font-size:13px;color:#666}
+a{color:#2878b8}
+.month-block{background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.month-title{font-size:20px;font-weight:bold;color:#5f936b;margin-bottom:8px}
+.calendar-item{padding:8px 0;border-bottom:1px solid #eee}
+.calendar-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.date{font-weight:bold}
+.field-name{font-size:13px;color:#777}
+.field-row{background:white;border-radius:12px;padding:10px;margin-top:10px}
+.field-buttons{display:flex;gap:8px;margin-top:8px}
+.field-buttons button{flex:1;padding:8px;border:none;border-radius:8px;background:#dceee0}
+.filter-box{background:white;border-radius:14px;padding:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 </style>
 </head>
 <body>
@@ -174,22 +55,36 @@ a {
 
 <section id="cards">
   <h2>各VTuber</h2>
+  <div class="filter-box">
+    <label>フィルター項目</label>
+    <select id="filterField" onchange="onFilterFieldChange()"></select>
+
+    <label>表示対象</label>
+    <select id="filterValue" onchange="renderAll()"></select>
+  </div>
   <p class="small">横にスワイプしてカードを移動できます。</p>
   <div class="cards" id="cardList"></div>
 </section>
 
 <section id="calendar">
   <h2>推し活カレンダー</h2>
+  <div class="filter-box">
+    <label>フィルター項目</label>
+    <select id="calendarFilterField" onchange="onCalendarFilterFieldChange()"></select>
+
+    <label>表示対象</label>
+    <select id="calendarFilterValue" onchange="renderAll()"></select>
+  </div>
   <p class="small">各VTuberの項目から月日を自動で抜き出し、4月から3月の順に表示します。</p>
   <div id="calendarList"></div>
 </section>
 
 <section id="fields">
   <h2>項目マスタ</h2>
-  <p class="small">ここで追加した項目は、全員に同じ順番で表示されます。</p>
+  <p class="small">「フィルターON」にした項目は、各VTuber画面と推し活カレンダーで絞り込みに使えます。</p>
 
   <label>新しい項目名</label>
-  <input id="newFieldName" placeholder="例：推しカラー、YouTube、X、初配信日">
+  <input id="newFieldName" placeholder="例：所属、推しカラー、YouTube、X">
   <button class="main" onclick="addField()">項目を追加</button>
 
   <h3>現在の項目</h3>
@@ -198,84 +93,76 @@ a {
 
 <script>
 let fields = JSON.parse(localStorage.getItem("vtuberFields")) || [
-  { key: "name", label: "名前" },
-  { key: "birthday", label: "誕生日" },
-  { key: "debutDate", label: "活動開始日" },
-  { key: "youtubeStartDate", label: "YouTube活動開始日" },
-  { key: "fanMark", label: "FM（ファンマーク）" },
-  { key: "fanName", label: "FN（ファンネーム）" },
-  { key: "favoriteFood", label: "好きな食べ物" },
-  { key: "dislikeFood", label: "苦手な食べ物" }
+  { key:"name", label:"名前", filterable:false },
+  { key:"birthday", label:"誕生日", filterable:false },
+  { key:"debutDate", label:"活動開始日", filterable:false },
+  { key:"youtubeStartDate", label:"YouTube活動開始日", filterable:false },
+  { key:"fanMark", label:"FM（ファンマーク）", filterable:true },
+  { key:"fanName", label:"FN（ファンネーム）", filterable:false },
+  { key:"favoriteFood", label:"好きな食べ物", filterable:false },
+  { key:"dislikeFood", label:"苦手な食べ物", filterable:false }
 ];
+
+fields = fields.map(f => ({ filterable:false, ...f }));
 
 let vtubers = JSON.parse(localStorage.getItem("vtubers")) || [];
 let editingId = null;
 
-function saveData() {
+function saveData(){
   localStorage.setItem("vtuberFields", JSON.stringify(fields));
   localStorage.setItem("vtubers", JSON.stringify(vtubers));
 }
 
-function showPage(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+function showPage(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  const btn = document.querySelector(`nav button[data-page="${id}"]`);
-  if (btn) btn.classList.add("active");
-
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`nav button[data-page="${id}"]`)?.classList.add("active");
   renderAll();
 }
 
-function renderInputFields() {
-  const area = document.getElementById("inputFields");
-  const currentValues = {};
-
-  fields.forEach(field => {
-    const oldInput = document.getElementById("input_" + field.key);
-    if (oldInput) currentValues[field.key] = oldInput.value;
+function renderInputFields(){
+  const area=document.getElementById("inputFields");
+  const current={};
+  fields.forEach(f=>{
+    const old=document.getElementById("input_"+f.key);
+    if(old) current[f.key]=old.value;
   });
 
-  area.innerHTML = "";
-
-  fields.forEach(field => {
-    const label = document.createElement("label");
-    label.textContent = field.label;
-
-    const input = document.createElement("input");
-    input.id = "input_" + field.key;
-    input.placeholder = field.label;
-    input.value = currentValues[field.key] || "";
-
+  area.innerHTML="";
+  fields.forEach(f=>{
+    const label=document.createElement("label");
+    label.textContent=f.label;
+    const input=document.createElement("input");
+    input.id="input_"+f.key;
+    input.placeholder=f.label;
+    input.value=current[f.key]||"";
     area.appendChild(label);
     area.appendChild(input);
   });
 }
 
-function saveVtuber() {
-  const data = {
-    id: editingId || Date.now().toString()
-  };
-
-  fields.forEach(field => {
-    const input = document.getElementById("input_" + field.key);
-    data[field.key] = input ? input.value.trim() : "";
+function saveVtuber(){
+  const data={id:editingId||Date.now().toString()};
+  fields.forEach(f=>{
+    const input=document.getElementById("input_"+f.key);
+    data[f.key]=input?input.value.trim():"";
   });
 
-  if (!data.name) {
+  if(!data.name){
     alert("名前は入力してください");
     return;
   }
 
-  if (editingId) {
-    vtubers = vtubers.map(v => v.id === editingId ? data : v);
+  if(editingId){
+    vtubers=vtubers.map(v=>v.id===editingId?data:v);
     alert("更新しました");
-  } else {
+  }else{
     vtubers.push(data);
     alert("登録しました");
   }
 
-  editingId = null;
+  editingId=null;
   saveData();
   clearInput();
   updateInputMode();
@@ -283,289 +170,344 @@ function saveVtuber() {
   showPage("cards");
 }
 
-function editVtuber(id) {
-  const v = vtubers.find(item => item.id === id);
-  if (!v) return;
-
-  editingId = id;
+function editVtuber(id){
+  const v=vtubers.find(x=>x.id===id);
+  if(!v)return;
+  editingId=id;
   showPage("input");
 
-  fields.forEach(field => {
-    const input = document.getElementById("input_" + field.key);
-    if (input) input.value = v[field.key] || "";
+  fields.forEach(f=>{
+    const input=document.getElementById("input_"+f.key);
+    if(input) input.value=v[f.key]||"";
   });
 
   updateInputMode();
 }
 
-function cancelEdit() {
-  editingId = null;
+function cancelEdit(){
+  editingId=null;
   clearInput();
   updateInputMode();
   renderAll();
 }
 
-function updateInputMode() {
-  const title = document.getElementById("inputTitle");
-  const saveButton = document.getElementById("saveButton");
-  const cancelButton = document.getElementById("cancelEditButton");
-
-  if (editingId) {
-    title.textContent = "配信者を編集";
-    saveButton.textContent = "更新する";
-    cancelButton.style.display = "block";
-  } else {
-    title.textContent = "配信者を登録";
-    saveButton.textContent = "登録する";
-    cancelButton.style.display = "none";
-  }
+function updateInputMode(){
+  document.getElementById("inputTitle").textContent=editingId?"配信者を編集":"配信者を登録";
+  document.getElementById("saveButton").textContent=editingId?"更新する":"登録する";
+  document.getElementById("cancelEditButton").style.display=editingId?"block":"none";
 }
 
-function clearInput() {
-  fields.forEach(field => {
-    const input = document.getElementById("input_" + field.key);
-    if (input) input.value = "";
+function clearInput(){
+  fields.forEach(f=>{
+    const input=document.getElementById("input_"+f.key);
+    if(input)input.value="";
   });
 }
 
-function renderCards() {
-  const area = document.getElementById("cardList");
-  area.innerHTML = "";
+function splitValues(value){
+  return String(value||"")
+    .split(/[、,，\/／]/)
+    .map(v=>v.trim())
+    .filter(Boolean);
+}
 
-  if (vtubers.length === 0) {
-    area.innerHTML = "<p>まだ登録がありません。</p>";
+function getFilterableFields(){
+  return fields.filter(f=>f.filterable);
+}
+
+function getFilterValues(fieldKey){
+  const set=new Set();
+  vtubers.forEach(v=>{
+    splitValues(v[fieldKey]).forEach(val=>set.add(val));
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,"ja"));
+}
+
+function matchesFilter(v, fieldSelectId, valueSelectId){
+  const fieldKey=document.getElementById(fieldSelectId)?.value || "all";
+  const selected=document.getElementById(valueSelectId)?.value || "all";
+
+  if(fieldKey==="all" || selected==="all") return true;
+
+  return splitValues(v[fieldKey]).includes(selected);
+}
+
+function renderFilterControls(){
+  renderOneFilter("filterField","filterValue");
+  renderOneFilter("calendarFilterField","calendarFilterValue");
+}
+
+function renderOneFilter(fieldId,valueId){
+  const fieldSelect=document.getElementById(fieldId);
+  const valueSelect=document.getElementById(valueId);
+  if(!fieldSelect||!valueSelect)return;
+
+  const oldField=fieldSelect.value||"all";
+  const oldValue=valueSelect.value||"all";
+
+  const filterable=getFilterableFields();
+
+  fieldSelect.innerHTML=`<option value="all">すべて</option>`;
+  filterable.forEach(f=>{
+    fieldSelect.innerHTML+=`<option value="${f.key}">${escapeHtml(f.label)}</option>`;
+  });
+
+  fieldSelect.value=filterable.some(f=>f.key===oldField)?oldField:"all";
+
+  const selectedField=fieldSelect.value;
+  valueSelect.innerHTML=`<option value="all">すべて</option>`;
+
+  if(selectedField!=="all"){
+    getFilterValues(selectedField).forEach(val=>{
+      valueSelect.innerHTML+=`<option value="${escapeAttr(val)}">${escapeHtml(val)}</option>`;
+    });
+  }
+
+  const values=[...valueSelect.options].map(o=>o.value);
+  valueSelect.value=values.includes(oldValue)?oldValue:"all";
+}
+
+function onFilterFieldChange(){
+  document.getElementById("filterValue").value="all";
+  renderAll();
+}
+
+function onCalendarFilterFieldChange(){
+  document.getElementById("calendarFilterValue").value="all";
+  renderAll();
+}
+
+function renderCards(){
+  const area=document.getElementById("cardList");
+  area.innerHTML="";
+
+  const list=vtubers.filter(v=>matchesFilter(v,"filterField","filterValue"));
+
+  if(list.length===0){
+    area.innerHTML="<p>表示できるVTuberがありません。</p>";
     return;
   }
 
-  vtubers.forEach(v => {
-    const card = document.createElement("div");
-    card.className = "card";
+  list.forEach(v=>{
+    const card=document.createElement("div");
+    card.className="card";
 
-    const title = document.createElement("h2");
-    title.textContent = `${v.fanMark || ""} ${v.name || "名前未登録"}`;
+    const title=document.createElement("h2");
+    title.textContent=`${v.fanMark||""} ${v.name||"名前未登録"}`;
     card.appendChild(title);
 
-    fields.forEach(field => {
-      const value = v[field.key];
-      if (!value) return;
-
-      const item = document.createElement("div");
-      item.className = "item";
-      item.innerHTML = `<span>${field.label}</span>${linkify(value)}`;
+    fields.forEach(f=>{
+      const value=v[f.key];
+      if(!value)return;
+      const item=document.createElement("div");
+      item.className="item";
+      item.innerHTML=`<span>${escapeHtml(f.label)}</span>${linkify(value)}`;
       card.appendChild(item);
     });
 
-    const edit = document.createElement("button");
-    edit.className = "main sub";
-    edit.textContent = "編集";
-    edit.onclick = () => editVtuber(v.id);
+    const edit=document.createElement("button");
+    edit.className="main sub";
+    edit.textContent="編集";
+    edit.onclick=()=>editVtuber(v.id);
     card.appendChild(edit);
 
-    const del = document.createElement("button");
-    del.className = "main danger";
-    del.textContent = "この配信者を削除";
-    del.onclick = () => deleteVtuber(v.id);
+    const del=document.createElement("button");
+    del.className="main danger";
+    del.textContent="この配信者を削除";
+    del.onclick=()=>deleteVtuber(v.id);
     card.appendChild(del);
 
     area.appendChild(card);
   });
 }
 
-function deleteVtuber(id) {
-  if (!confirm("削除しますか？")) return;
-
-  vtubers = vtubers.filter(v => v.id !== id);
-
-  if (editingId === id) {
-    editingId = null;
+function deleteVtuber(id){
+  if(!confirm("削除しますか？"))return;
+  vtubers=vtubers.filter(v=>v.id!==id);
+  if(editingId===id){
+    editingId=null;
     clearInput();
     updateInputMode();
   }
-
   saveData();
   renderAll();
 }
 
-function addField() {
-  const name = document.getElementById("newFieldName").value.trim();
-  if (!name) return;
-
-  const key = "custom_" + Date.now();
+function addField(){
+  const name=document.getElementById("newFieldName").value.trim();
+  if(!name)return;
 
   fields.push({
-    key: key,
-    label: name
+    key:"custom_"+Date.now(),
+    label:name,
+    filterable:false
   });
 
-  document.getElementById("newFieldName").value = "";
+  document.getElementById("newFieldName").value="";
   saveData();
   renderAll();
 }
 
-function renderFieldList() {
-  const area = document.getElementById("fieldList");
-  area.innerHTML = "";
+function renderFieldList(){
+  const area=document.getElementById("fieldList");
+  area.innerHTML="";
 
-  fields.forEach((field, index) => {
-    const row = document.createElement("div");
-    row.className = "field-row";
+  fields.forEach((f,index)=>{
+    const row=document.createElement("div");
+    row.className="field-row";
 
-    const input = document.createElement("input");
-    input.value = field.label;
-    input.onchange = () => {
-      fields[index].label = input.value;
+    const input=document.createElement("input");
+    input.value=f.label;
+    input.onchange=()=>{
+      fields[index].label=input.value.trim()||f.label;
       saveData();
       renderAll();
     };
 
-    const up = document.createElement("button");
-    up.textContent = "↑";
-    up.onclick = () => moveField(index, -1);
+    const filterBtn=document.createElement("button");
+    filterBtn.className="main";
+    filterBtn.textContent=f.filterable?"フィルターON":"フィルターOFF";
+    filterBtn.style.background=f.filterable?"#7fb58a":"#aaa";
+    filterBtn.onclick=()=>{
+      fields[index].filterable=!fields[index].filterable;
+      saveData();
+      renderAll();
+    };
 
-    const down = document.createElement("button");
-    down.textContent = "↓";
-    down.onclick = () => moveField(index, 1);
+    const buttons=document.createElement("div");
+    buttons.className="field-buttons";
+
+    const up=document.createElement("button");
+    up.textContent="↑";
+    up.onclick=()=>moveField(index,-1);
+
+    const down=document.createElement("button");
+    down.textContent="↓";
+    down.onclick=()=>moveField(index,1);
+
+    buttons.appendChild(up);
+    buttons.appendChild(down);
 
     row.appendChild(input);
-    row.appendChild(up);
-    row.appendChild(down);
-
+    row.appendChild(filterBtn);
+    row.appendChild(buttons);
     area.appendChild(row);
   });
 }
 
-function moveField(index, direction) {
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= fields.length) return;
-
-  const temp = fields[index];
-  fields[index] = fields[newIndex];
-  fields[newIndex] = temp;
-
+function moveField(index,direction){
+  const ni=index+direction;
+  if(ni<0||ni>=fields.length)return;
+  [fields[index],fields[ni]]=[fields[ni],fields[index]];
   saveData();
   renderAll();
 }
 
-function linkify(text) {
-  if (!text) return "";
+function escapeHtml(text){
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
 
-  const escaped = String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+function escapeAttr(text){
+  return escapeHtml(text).replace(/"/g,"&quot;");
+}
 
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
-
-  return escaped.replace(urlPattern, url => {
+function linkify(text){
+  const escaped=escapeHtml(text);
+  return escaped.replace(/(https?:\/\/[^\s]+)/g,url=>{
     return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
 }
 
-function extractDates(text) {
-  if (!text) return [];
-
-  const results = [];
-  const str = String(text);
-
-  const patterns = [
+function extractDates(text){
+  if(!text)return[];
+  const results=[];
+  const str=String(text);
+  const patterns=[
     /(\d{1,2})月\s*(\d{1,2})日/g,
     /(\d{1,2})\/(\d{1,2})/g,
     /(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/g,
     /(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/g
   ];
 
-  let match;
+  patterns.forEach((p,i)=>{
+    let m;
+    while((m=p.exec(str))!==null){
+      if(i===2||i===3){
+        results.push({month:Number(m[2]),day:Number(m[3])});
+      }else{
+        results.push({month:Number(m[1]),day:Number(m[2])});
+      }
+    }
+  });
 
-  while ((match = patterns[0].exec(str)) !== null) {
-    results.push({ month: Number(match[1]), day: Number(match[2]) });
-  }
-
-  while ((match = patterns[1].exec(str)) !== null) {
-    results.push({ month: Number(match[1]), day: Number(match[2]) });
-  }
-
-  while ((match = patterns[2].exec(str)) !== null) {
-    results.push({ month: Number(match[2]), day: Number(match[3]) });
-  }
-
-  while ((match = patterns[3].exec(str)) !== null) {
-    results.push({ month: Number(match[2]), day: Number(match[3]) });
-  }
-
-  return results.filter(d =>
-    d.month >= 1 && d.month <= 12 &&
-    d.day >= 1 && d.day <= 31
-  );
+  return results.filter(d=>d.month>=1&&d.month<=12&&d.day>=1&&d.day<=31);
 }
 
-function fiscalMonthOrder(month) {
-  return month >= 4 ? month : month + 12;
+function fiscalMonthOrder(month){
+  return month>=4?month:month+12;
 }
 
-function renderCalendar() {
-  const area = document.getElementById("calendarList");
-  area.innerHTML = "";
+function renderCalendar(){
+  const area=document.getElementById("calendarList");
+  area.innerHTML="";
 
-  const events = [];
+  const filteredVtubers=vtubers.filter(v=>matchesFilter(v,"calendarFilterField","calendarFilterValue"));
+  const events=[];
 
-  vtubers.forEach(v => {
-    fields.forEach(field => {
-      if (field.key === "name" || field.key === "fanMark") return;
+  filteredVtubers.forEach(v=>{
+    fields.forEach(f=>{
+      if(f.key==="name"||f.key==="fanMark")return;
+      const value=v[f.key];
+      if(!value)return;
 
-      const value = v[field.key];
-      if (!value) return;
-
-      const dates = extractDates(value);
-
-      dates.forEach(d => {
+      extractDates(value).forEach(d=>{
         events.push({
-          month: d.month,
-          day: d.day,
-          name: v.name || "名前未登録",
-          fanMark: v.fanMark || "",
-          fieldLabel: field.label,
-          value: value
+          month:d.month,
+          day:d.day,
+          name:v.name||"名前未登録",
+          fanMark:v.fanMark||"",
+          fieldLabel:f.label
         });
       });
     });
   });
 
-  events.sort((a, b) => {
-    const ma = fiscalMonthOrder(a.month);
-    const mb = fiscalMonthOrder(b.month);
-
-    if (ma !== mb) return ma - mb;
-    if (a.day !== b.day) return a.day - b.day;
-    return a.name.localeCompare(b.name, "ja");
+  events.sort((a,b)=>{
+    const ma=fiscalMonthOrder(a.month);
+    const mb=fiscalMonthOrder(b.month);
+    if(ma!==mb)return ma-mb;
+    if(a.day!==b.day)return a.day-b.day;
+    return a.name.localeCompare(b.name,"ja");
   });
 
-  if (events.length === 0) {
-    area.innerHTML = "<p>まだカレンダーに表示できる日付がありません。</p>";
+  if(events.length===0){
+    area.innerHTML="<p>表示できる記念日がありません。</p>";
     return;
   }
 
-  const monthOrder = [4,5,6,7,8,9,10,11,12,1,2,3];
+  [4,5,6,7,8,9,10,11,12,1,2,3].forEach(month=>{
+    const monthEvents=events.filter(e=>e.month===month);
+    if(monthEvents.length===0)return;
 
-  monthOrder.forEach(month => {
-    const monthEvents = events.filter(e => e.month === month);
-    if (monthEvents.length === 0) return;
+    const block=document.createElement("div");
+    block.className="month-block";
 
-    const block = document.createElement("div");
-    block.className = "month-block";
-
-    const title = document.createElement("div");
-    title.className = "month-title";
-    title.textContent = `${month}月`;
+    const title=document.createElement("div");
+    title.className="month-title";
+    title.textContent=`${month}月`;
     block.appendChild(title);
 
-    monthEvents.forEach(e => {
-      const item = document.createElement("div");
-      item.className = "calendar-item";
-      item.innerHTML = `
+    monthEvents.forEach(e=>{
+      const item=document.createElement("div");
+      item.className="calendar-item";
+      item.innerHTML=`
         <div class="calendar-line">
           <span class="date">${e.month}/${e.day}</span>
-          <span>${e.fanMark} ${e.name}</span>
-          <span class="field-name">${e.fieldLabel}</span>
+          <span>${escapeHtml(e.fanMark)} ${escapeHtml(e.name)}</span>
+          <span class="field-name">${escapeHtml(e.fieldLabel)}</span>
         </div>
       `;
       block.appendChild(item);
@@ -575,8 +517,9 @@ function renderCalendar() {
   });
 }
 
-function renderAll() {
+function renderAll(){
   renderInputFields();
+  renderFilterControls();
   renderCards();
   renderFieldList();
   renderCalendar();
