@@ -14,6 +14,8 @@ section{display:none;padding:16px}
 section.active{display:block}
 label{display:block;margin-top:12px;font-weight:bold}
 input,select{width:100%;padding:10px;box-sizing:border-box;margin-top:4px;border:1px solid #ccc;border-radius:8px}
+.date-row{display:flex;gap:8px}
+.date-row select{flex:1}
 button.main{width:100%;margin-top:12px;padding:12px;border:none;border-radius:10px;background:#7fb58a;color:white;font-weight:bold}
 button.sub{background:#8aa8c8}
 button.danger{background:#c46b6b}
@@ -29,6 +31,7 @@ a{color:#2878b8}
 .calendar-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .date{font-weight:bold}
 .field-name{font-size:13px;color:#777}
+.anniv{font-size:13px;color:#c06b43;font-weight:bold}
 .field-row{background:white;border-radius:12px;padding:10px;margin-top:10px}
 .field-buttons{display:flex;gap:8px;margin-top:8px}
 .field-buttons button{flex:1;padding:8px;border:none;border-radius:8px;background:#dceee0}
@@ -58,7 +61,6 @@ a{color:#2878b8}
   <div class="filter-box">
     <label>フィルター項目</label>
     <select id="filterField" onchange="onFilterFieldChange()"></select>
-
     <label>表示対象</label>
     <select id="filterValue" onchange="renderAll()"></select>
   </div>
@@ -71,20 +73,19 @@ a{color:#2878b8}
   <div class="filter-box">
     <label>フィルター項目</label>
     <select id="calendarFilterField" onchange="onCalendarFilterFieldChange()"></select>
-
     <label>表示対象</label>
     <select id="calendarFilterValue" onchange="renderAll()"></select>
   </div>
-  <p class="small">各VTuberの項目から月日を自動で抜き出し、4月から3月の順に表示します。</p>
+  <p class="small">年が入っている日付項目は、今年度の周年を表示します。</p>
   <div id="calendarList"></div>
 </section>
 
 <section id="fields">
   <h2>項目マスタ</h2>
-  <p class="small">「フィルターON」にした項目は、各VTuber画面と推し活カレンダーで絞り込みに使えます。</p>
+  <p class="small">項目の種類を「日付」にすると、入力画面で年・月・日のロール選択になります。</p>
 
   <label>新しい項目名</label>
-  <input id="newFieldName" placeholder="例：所属、推しカラー、YouTube、X">
+  <input id="newFieldName" placeholder="例：所属、推しカラー、初配信日">
   <button class="main" onclick="addField()">項目を追加</button>
 
   <h3>現在の項目</h3>
@@ -93,17 +94,17 @@ a{color:#2878b8}
 
 <script>
 let fields = JSON.parse(localStorage.getItem("vtuberFields")) || [
-  { key:"name", label:"名前", filterable:false },
-  { key:"birthday", label:"誕生日", filterable:false },
-  { key:"debutDate", label:"活動開始日", filterable:false },
-  { key:"youtubeStartDate", label:"YouTube活動開始日", filterable:false },
-  { key:"fanMark", label:"FM（ファンマーク）", filterable:true },
-  { key:"fanName", label:"FN（ファンネーム）", filterable:false },
-  { key:"favoriteFood", label:"好きな食べ物", filterable:false },
-  { key:"dislikeFood", label:"苦手な食べ物", filterable:false }
+  { key:"name", label:"名前", type:"text", filterable:false },
+  { key:"birthday", label:"誕生日", type:"date", filterable:false },
+  { key:"debutDate", label:"活動開始日", type:"date", filterable:false },
+  { key:"youtubeStartDate", label:"YouTube活動開始日", type:"date", filterable:false },
+  { key:"fanMark", label:"FM（ファンマーク）", type:"text", filterable:true },
+  { key:"fanName", label:"FN（ファンネーム）", type:"text", filterable:false },
+  { key:"favoriteFood", label:"好きな食べ物", type:"text", filterable:false },
+  { key:"dislikeFood", label:"苦手な食べ物", type:"text", filterable:false }
 ];
 
-fields = fields.map(f => ({ filterable:false, ...f }));
+fields = fields.map(f => ({ type:"text", filterable:false, ...f }));
 
 let vtubers = JSON.parse(localStorage.getItem("vtubers")) || [];
 let editingId = null;
@@ -121,32 +122,141 @@ function showPage(id){
   renderAll();
 }
 
+function createDateSelectors(field, value){
+  const parsed = parseDateValue(value);
+  const row = document.createElement("div");
+  row.className = "date-row";
+
+  const year = document.createElement("select");
+  year.id = "input_" + field.key + "_year";
+  year.innerHTML = `<option value="">年なし</option>`;
+
+  const currentYear = new Date().getFullYear();
+  for(let y=currentYear+1; y>=2000; y--){
+    year.innerHTML += `<option value="${y}">${y}年</option>`;
+  }
+
+  const month = document.createElement("select");
+  month.id = "input_" + field.key + "_month";
+  month.innerHTML = `<option value="">月</option>`;
+  for(let m=1; m<=12; m++){
+    month.innerHTML += `<option value="${m}">${m}月</option>`;
+  }
+
+  const day = document.createElement("select");
+  day.id = "input_" + field.key + "_day";
+  day.innerHTML = `<option value="">日</option>`;
+  for(let d=1; d<=31; d++){
+    day.innerHTML += `<option value="${d}">${d}日</option>`;
+  }
+
+  if(parsed){
+    year.value = parsed.year || "";
+    month.value = parsed.month || "";
+    day.value = parsed.day || "";
+  }
+
+  row.appendChild(year);
+  row.appendChild(month);
+  row.appendChild(day);
+  return row;
+}
+
 function renderInputFields(){
   const area=document.getElementById("inputFields");
   const current={};
+
   fields.forEach(f=>{
-    const old=document.getElementById("input_"+f.key);
-    if(old) current[f.key]=old.value;
+    if(f.type==="date"){
+      const y=document.getElementById("input_"+f.key+"_year");
+      const m=document.getElementById("input_"+f.key+"_month");
+      const d=document.getElementById("input_"+f.key+"_day");
+      if(m || d){
+        current[f.key] = makeDateValue(y?.value, m?.value, d?.value);
+      }
+    }else{
+      const old=document.getElementById("input_"+f.key);
+      if(old) current[f.key]=old.value;
+    }
   });
 
   area.innerHTML="";
+
   fields.forEach(f=>{
     const label=document.createElement("label");
     label.textContent=f.label;
-    const input=document.createElement("input");
-    input.id="input_"+f.key;
-    input.placeholder=f.label;
-    input.value=current[f.key]||"";
     area.appendChild(label);
-    area.appendChild(input);
+
+    if(f.type==="date"){
+      area.appendChild(createDateSelectors(f, current[f.key] || ""));
+    }else{
+      const input=document.createElement("input");
+      input.id="input_"+f.key;
+      input.placeholder=f.label;
+      input.value=current[f.key]||"";
+      area.appendChild(input);
+    }
   });
+}
+
+function getInputValue(field){
+  if(field.type==="date"){
+    const y=document.getElementById("input_"+field.key+"_year")?.value || "";
+    const m=document.getElementById("input_"+field.key+"_month")?.value || "";
+    const d=document.getElementById("input_"+field.key+"_day")?.value || "";
+    return makeDateValue(y,m,d);
+  }
+
+  return document.getElementById("input_"+field.key)?.value.trim() || "";
+}
+
+function makeDateValue(year,month,day){
+  if(!month || !day) return "";
+  const mm=String(month).padStart(2,"0");
+  const dd=String(day).padStart(2,"0");
+  if(year) return `${year}-${mm}-${dd}`;
+  return `--${mm}-${dd}`;
+}
+
+function parseDateValue(value){
+  if(!value) return null;
+  const str=String(value);
+
+  let m;
+  if((m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/))){
+    return {year:m[1], month:Number(m[2]), day:Number(m[3])};
+  }
+  if((m = str.match(/^--(\d{2})-(\d{2})$/))){
+    return {year:"", month:Number(m[1]), day:Number(m[2])};
+  }
+  if((m = str.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/))){
+    return {year:m[1], month:Number(m[2]), day:Number(m[3])};
+  }
+  if((m = str.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/))){
+    return {year:m[1], month:Number(m[2]), day:Number(m[3])};
+  }
+  if((m = str.match(/(\d{1,2})月\s*(\d{1,2})日/))){
+    return {year:"", month:Number(m[1]), day:Number(m[2])};
+  }
+  if((m = str.match(/(\d{1,2})\/(\d{1,2})/))){
+    return {year:"", month:Number(m[1]), day:Number(m[2])};
+  }
+
+  return null;
+}
+
+function formatDateValue(value){
+  const p = parseDateValue(value);
+  if(!p) return value;
+  if(p.year) return `${p.year}年${p.month}月${p.day}日`;
+  return `${p.month}月${p.day}日`;
 }
 
 function saveVtuber(){
   const data={id:editingId||Date.now().toString()};
+
   fields.forEach(f=>{
-    const input=document.getElementById("input_"+f.key);
-    data[f.key]=input?input.value.trim():"";
+    data[f.key]=getInputValue(f);
   });
 
   if(!data.name){
@@ -177,8 +287,15 @@ function editVtuber(id){
   showPage("input");
 
   fields.forEach(f=>{
-    const input=document.getElementById("input_"+f.key);
-    if(input) input.value=v[f.key]||"";
+    if(f.type==="date"){
+      const p=parseDateValue(v[f.key]);
+      document.getElementById("input_"+f.key+"_year").value = p?.year || "";
+      document.getElementById("input_"+f.key+"_month").value = p?.month || "";
+      document.getElementById("input_"+f.key+"_day").value = p?.day || "";
+    }else{
+      const input=document.getElementById("input_"+f.key);
+      if(input) input.value=v[f.key]||"";
+    }
   });
 
   updateInputMode();
@@ -199,16 +316,19 @@ function updateInputMode(){
 
 function clearInput(){
   fields.forEach(f=>{
-    const input=document.getElementById("input_"+f.key);
-    if(input)input.value="";
+    if(f.type==="date"){
+      document.getElementById("input_"+f.key+"_year").value="";
+      document.getElementById("input_"+f.key+"_month").value="";
+      document.getElementById("input_"+f.key+"_day").value="";
+    }else{
+      const input=document.getElementById("input_"+f.key);
+      if(input)input.value="";
+    }
   });
 }
 
 function splitValues(value){
-  return String(value||"")
-    .split(/[、,，\/／]/)
-    .map(v=>v.trim())
-    .filter(Boolean);
+  return String(value||"").split(/[、,，\/／]/).map(v=>v.trim()).filter(Boolean);
 }
 
 function getFilterableFields(){
@@ -226,9 +346,7 @@ function getFilterValues(fieldKey){
 function matchesFilter(v, fieldSelectId, valueSelectId){
   const fieldKey=document.getElementById(fieldSelectId)?.value || "all";
   const selected=document.getElementById(valueSelectId)?.value || "all";
-
   if(fieldKey==="all" || selected==="all") return true;
-
   return splitValues(v[fieldKey]).includes(selected);
 }
 
@@ -244,7 +362,6 @@ function renderOneFilter(fieldId,valueId){
 
   const oldField=fieldSelect.value||"all";
   const oldValue=valueSelect.value||"all";
-
   const filterable=getFilterableFields();
 
   fieldSelect.innerHTML=`<option value="all">すべて</option>`;
@@ -253,12 +370,10 @@ function renderOneFilter(fieldId,valueId){
   });
 
   fieldSelect.value=filterable.some(f=>f.key===oldField)?oldField:"all";
-
-  const selectedField=fieldSelect.value;
   valueSelect.innerHTML=`<option value="all">すべて</option>`;
 
-  if(selectedField!=="all"){
-    getFilterValues(selectedField).forEach(val=>{
+  if(fieldSelect.value!=="all"){
+    getFilterValues(fieldSelect.value).forEach(val=>{
       valueSelect.innerHTML+=`<option value="${escapeAttr(val)}">${escapeHtml(val)}</option>`;
     });
   }
@@ -299,9 +414,11 @@ function renderCards(){
     fields.forEach(f=>{
       const value=v[f.key];
       if(!value)return;
+
       const item=document.createElement("div");
       item.className="item";
-      item.innerHTML=`<span>${escapeHtml(f.label)}</span>${linkify(value)}`;
+      const display = f.type==="date" ? formatDateValue(value) : linkify(value);
+      item.innerHTML=`<span>${escapeHtml(f.label)}</span>${display}`;
       card.appendChild(item);
     });
 
@@ -340,6 +457,7 @@ function addField(){
   fields.push({
     key:"custom_"+Date.now(),
     label:name,
+    type:"text",
     filterable:false
   });
 
@@ -360,6 +478,20 @@ function renderFieldList(){
     input.value=f.label;
     input.onchange=()=>{
       fields[index].label=input.value.trim()||f.label;
+      saveData();
+      renderAll();
+    };
+
+    const typeSelect=document.createElement("select");
+    typeSelect.innerHTML=`
+      <option value="text">通常テキスト</option>
+      <option value="date">日付</option>
+      <option value="url">URL</option>
+      <option value="memo">メモ</option>
+    `;
+    typeSelect.value=f.type || "text";
+    typeSelect.onchange=()=>{
+      fields[index].type=typeSelect.value;
       saveData();
       renderAll();
     };
@@ -389,6 +521,7 @@ function renderFieldList(){
     buttons.appendChild(down);
 
     row.appendChild(input);
+    row.appendChild(typeSelect);
     row.appendChild(filterBtn);
     row.appendChild(buttons);
     area.appendChild(row);
@@ -404,10 +537,7 @@ function moveField(index,direction){
 }
 
 function escapeHtml(text){
-  return String(text)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
+  return String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
 function escapeAttr(text){
@@ -424,6 +554,17 @@ function linkify(text){
 function extractDates(text){
   if(!text)return[];
   const results=[];
+  const p=parseDateValue(text);
+
+  if(p){
+    results.push({
+      month:Number(p.month),
+      day:Number(p.day),
+      year:p.year ? Number(p.year) : null
+    });
+    return results;
+  }
+
   const str=String(text);
   const patterns=[
     /(\d{1,2})月\s*(\d{1,2})日/g,
@@ -432,13 +573,13 @@ function extractDates(text){
     /(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/g
   ];
 
-  patterns.forEach((p,i)=>{
+  patterns.forEach((pat,i)=>{
     let m;
-    while((m=p.exec(str))!==null){
+    while((m=pat.exec(str))!==null){
       if(i===2||i===3){
-        results.push({month:Number(m[2]),day:Number(m[3])});
+        results.push({month:Number(m[2]),day:Number(m[3]),year:Number(m[1])});
       }else{
-        results.push({month:Number(m[1]),day:Number(m[2])});
+        results.push({month:Number(m[1]),day:Number(m[2]),year:null});
       }
     }
   });
@@ -448,6 +589,28 @@ function extractDates(text){
 
 function fiscalMonthOrder(month){
   return month>=4?month:month+12;
+}
+
+function getFiscalStartYear(){
+  const now=new Date();
+  const y=now.getFullYear();
+  const m=now.getMonth()+1;
+  return m>=4 ? y : y-1;
+}
+
+function getAnniversaryText(year, month, fieldLabel){
+  if(!year) return "";
+
+  if(String(fieldLabel).includes("誕生日")){
+    return "";
+  }
+
+  const fiscalStart=getFiscalStartYear();
+  const occurrenceYear = month>=4 ? fiscalStart : fiscalStart+1;
+  const n = occurrenceYear - Number(year);
+
+  if(n <= 0) return "";
+  return `${n}周年`;
 }
 
 function renderCalendar(){
@@ -464,12 +627,14 @@ function renderCalendar(){
       if(!value)return;
 
       extractDates(value).forEach(d=>{
+        const anniv = getAnniversaryText(d.year, d.month, f.label);
         events.push({
           month:d.month,
           day:d.day,
           name:v.name||"名前未登録",
           fanMark:v.fanMark||"",
-          fieldLabel:f.label
+          fieldLabel:f.label,
+          anniversary:anniv
         });
       });
     });
@@ -508,6 +673,7 @@ function renderCalendar(){
           <span class="date">${e.month}/${e.day}</span>
           <span>${escapeHtml(e.fanMark)} ${escapeHtml(e.name)}</span>
           <span class="field-name">${escapeHtml(e.fieldLabel)}</span>
+          ${e.anniversary ? `<span class="anniv">${escapeHtml(e.anniversary)}</span>` : ""}
         </div>
       `;
       block.appendChild(item);
