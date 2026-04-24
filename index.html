@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VTuberプロフィール管理</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    background: #f5f7f5;
+    color: #333;
+  }
+  header {
+    background: #9fc8a8;
+    color: white;
+    padding: 14px;
+    text-align: center;
+    font-weight: bold;
+  }
+  nav {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: #dceee0;
+    font-weight: bold;
+  }
+  nav button.active {
+    background: #9fc8a8;
+    color: white;
+  }
+  section {
+    display: none;
+    padding: 16px;
+  }
+  section.active {
+    display: block;
+  }
+  label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  button.main {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #7fb58a;
+    color: white;
+    font-weight: bold;
+  }
+  button.danger {
+    background: #c46b6b;
+  }
+  .field-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .field-row input {
+    flex: 1;
+  }
+  .field-row button {
+    width: 70px;
+  }
+  .cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+  .card {
+    min-width: 86%;
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    scroll-snap-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .card h2 {
+    margin-top: 0;
+  }
+  .item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .item span {
+    display: block;
+    font-size: 12px;
+    color: #777;
+  }
+  .small {
+    font-size: 13px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<header>VTuberプロフィール管理</header>
+
+<nav>
+  <button class="active" onclick="showPage('input', this)">入力</button>
+  <button onclick="showPage('cards', this)">カード表示</button>
+  <button onclick="showPage('fields', this)">項目管理</button>
+</nav>
+
+<section id="input" class="active">
+  <h2>配信者を登録</h2>
+  <div id="inputFields"></div>
+  <button class="main" onclick="saveVtuber()">登録する</button>
+</section>
+
+<section id="cards">
+  <h2>登録した配信者</h2>
+  <p class="small">横にスワイプしてカードを移動できます。</p>
+  <div class="cards" id="cardList"></div>
+</section>
+
+<section id="fields">
+  <h2>項目管理</h2>
+  <p class="small">ここで追加した項目は、全員に同じ順番で表示されます。</p>
+
+  <label>新しい項目名</label>
+  <input id="newFieldName" placeholder="例：推しカラー">
+  <button class="main" onclick="addField()">項目を追加</button>
+
+  <h3>現在の項目</h3>
+  <div id="fieldList"></div>
+</section>
+
+<script>
+let fields = JSON.parse(localStorage.getItem("vtuberFields")) || [
+  { key: "name", label: "名前" },
+  { key: "birthday", label: "誕生日" },
+  { key: "debutDate", label: "活動開始日" },
+  { key: "youtubeStartDate", label: "YouTube活動開始日" },
+  { key: "fanMark", label: "FM（ファンマーク）" },
+  { key: "fanName", label: "FN（ファンネーム）" },
+  { key: "favoriteFood", label: "好きな食べ物" },
+  { key: "dislikeFood", label: "苦手な食べ物" }
+];
+
+let vtubers = JSON.parse(localStorage.getItem("vtubers")) || [];
+
+function saveData() {
+  localStorage.setItem("vtuberFields", JSON.stringify(fields));
+  localStorage.setItem("vtubers", JSON.stringify(vtubers));
+}
+
+function showPage(id, btn) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  renderAll();
+}
+
+function renderInputFields() {
+  const area = document.getElementById("inputFields");
+  area.innerHTML = "";
+
+  fields.forEach(field => {
+    const label = document.createElement("label");
+    label.textContent = field.label;
+
+    const input = document.createElement("input");
+    input.id = "input_" + field.key;
+    input.placeholder = field.label;
+
+    area.appendChild(label);
+    area.appendChild(input);
+  });
+}
+
+function saveVtuber() {
+  const data = {
+    id: Date.now().toString()
+  };
+
+  fields.forEach(field => {
+    const input = document.getElementById("input_" + field.key);
+    data[field.key] = input ? input.value.trim() : "";
+  });
+
+  if (!data.name) {
+    alert("名前は入力してください");
+    return;
+  }
+
+  vtubers.push(data);
+  saveData();
+
+  fields.forEach(field => {
+    const input = document.getElementById("input_" + field.key);
+    if (input) input.value = "";
+  });
+
+  alert("登録しました");
+  renderAll();
+}
+
+function renderCards() {
+  const area = document.getElementById("cardList");
+  area.innerHTML = "";
+
+  if (vtubers.length === 0) {
+    area.innerHTML = "<p>まだ登録がありません。</p>";
+    return;
+  }
+
+  vtubers.forEach(v => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const title = document.createElement("h2");
+    title.textContent = `${v.fanMark || ""} ${v.name || "名前未登録"}`;
+    card.appendChild(title);
+
+    fields.forEach(field => {
+      const value = v[field.key];
+
+      if (!value) return;
+
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `<span>${field.label}</span>${value}`;
+      card.appendChild(item);
+    });
+
+    const del = document.createElement("button");
+    del.className = "main danger";
+    del.textContent = "この配信者を削除";
+    del.onclick = () => deleteVtuber(v.id);
+    card.appendChild(del);
+
+    area.appendChild(card);
+  });
+}
+
+function deleteVtuber(id) {
+  if (!confirm("削除しますか？")) return;
+  vtubers = vtubers.filter(v => v.id !== id);
+  saveData();
+  renderAll();
+}
+
+function addField() {
+  const name = document.getElementById("newFieldName").value.trim();
+  if (!name) return;
+
+  const key = "custom_" + Date.now();
+
+  fields.push({
+    key: key,
+    label: name
+  });
+
+  document.getElementById("newFieldName").value = "";
+
+  saveData();
+  renderAll();
+}
+
+function renderFieldList() {
+  const area = document.getElementById("fieldList");
+  area.innerHTML = "";
+
+  fields.forEach((field, index) => {
+    const row = document.createElement("div");
+    row.className = "field-row";
+
+    const input = document.createElement("input");
+    input.value = field.label;
+    input.onchange = () => {
+      fields[index].label = input.value;
+      saveData();
+      renderAll();
+    };
+
+    const up = document.createElement("button");
+    up.textContent = "↑";
+    up.onclick = () => moveField(index, -1);
+
+    const down = document.createElement("button");
+    down.textContent = "↓";
+    down.onclick = () => moveField(index, 1);
+
+    row.appendChild(input);
+    row.appendChild(up);
+    row.appendChild(down);
+
+    area.appendChild(row);
+  });
+}
+
+function moveField(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= fields.length) return;
+
+  const temp = fields[index];
+  fields[index] = fields[newIndex];
+  fields[newIndex] = temp;
+
+  saveData();
+  renderAll();
+}
+
+function renderAll() {
+  renderInputFields();
+  renderCards();
+  renderFieldList();
+}
+
+renderAll();
+</script>
+
+</body>
+</html>
