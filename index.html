@@ -5,145 +5,147 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VTuberプロフィール管理</title>
 <style>
-  body {
-    font-family: system-ui, sans-serif;
-    margin: 0;
-    background: #f5f7f5;
-    color: #333;
-  }
-  header {
-    background: #9fc8a8;
-    color: white;
-    padding: 14px;
-    text-align: center;
-    font-weight: bold;
-  }
-  nav {
-    display: flex;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    overflow-x: auto;
-  }
-  nav button {
-    flex: 1;
-    min-width: 90px;
-    padding: 12px;
-    border: none;
-    background: #dceee0;
-    font-weight: bold;
-  }
-  nav button.active {
-    background: #9fc8a8;
-    color: white;
-  }
-  section {
-    display: none;
-    padding: 16px;
-  }
-  section.active {
-    display: block;
-  }
-  label {
-    display: block;
-    margin-top: 12px;
-    font-weight: bold;
-  }
-  input {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  button.main {
-    width: 100%;
-    margin-top: 16px;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: #7fb58a;
-    color: white;
-    font-weight: bold;
-  }
-  button.danger {
-    background: #c46b6b;
-  }
-  .field-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .field-row input {
-    flex: 1;
-  }
-  .field-row button {
-    width: 48px;
-  }
-  .cards {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 16px;
-    padding-bottom: 20px;
-  }
-  .card {
-    min-width: 86%;
-    background: white;
-    border-radius: 18px;
-    padding: 18px;
-    scroll-snap-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  }
-  .card h2 {
-    margin-top: 0;
-  }
-  .item {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-    word-break: break-word;
-  }
-  .item span {
-    display: block;
-    font-size: 12px;
-    color: #777;
-  }
-  .small {
-    font-size: 13px;
-    color: #666;
-  }
-  a {
-    color: #2878b8;
-  }
-  .month-block {
-    background: white;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 14px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-  }
-  .month-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #5f936b;
-    margin-bottom: 8px;
-  }
-  .calendar-item {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-  }
-  .calendar-item:last-child {
-    border-bottom: none;
-  }
-  .date {
-    font-weight: bold;
-    color: #333;
-  }
-  .field-name {
-    font-size: 13px;
-    color: #777;
-  }
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #f5f7f5;
+  color: #333;
+}
+header {
+  background: #9fc8a8;
+  color: white;
+  padding: 14px;
+  text-align: center;
+  font-weight: bold;
+}
+nav {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  overflow-x: auto;
+}
+nav button {
+  flex: 1;
+  min-width: 90px;
+  padding: 12px;
+  border: none;
+  background: #dceee0;
+  font-weight: bold;
+}
+nav button.active {
+  background: #9fc8a8;
+  color: white;
+}
+section {
+  display: none;
+  padding: 16px;
+}
+section.active {
+  display: block;
+}
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+button.main {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #7fb58a;
+  color: white;
+  font-weight: bold;
+}
+button.sub {
+  background: #8aa8c8;
+}
+button.danger {
+  background: #c46b6b;
+}
+.field-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.field-row input {
+  flex: 1;
+}
+.field-row button {
+  width: 48px;
+}
+.cards {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+.card {
+  min-width: 86%;
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  scroll-snap-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.card h2 {
+  margin-top: 0;
+}
+.item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  word-break: break-word;
+}
+.item span {
+  display: block;
+  font-size: 12px;
+  color: #777;
+}
+.small {
+  font-size: 13px;
+  color: #666;
+}
+a {
+  color: #2878b8;
+}
+.month-block {
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+.month-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #5f936b;
+  margin-bottom: 8px;
+}
+.calendar-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.calendar-item:last-child {
+  border-bottom: none;
+}
+.date {
+  font-weight: bold;
+}
+.field-name {
+  font-size: 13px;
+  color: #777;
+}
 </style>
 </head>
 <body>
@@ -151,16 +153,17 @@
 <header>VTuberプロフィール管理</header>
 
 <nav>
-  <button class="active" onclick="showPage('input', this)">入力</button>
-  <button onclick="showPage('cards', this)">各VTuber</button>
-  <button onclick="showPage('calendar', this)">推し活カレンダー</button>
-  <button onclick="showPage('fields', this)">項目マスタ</button>
+  <button data-page="input" class="active" onclick="showPage('input')">入力</button>
+  <button data-page="cards" onclick="showPage('cards')">各VTuber</button>
+  <button data-page="calendar" onclick="showPage('calendar')">推し活カレンダー</button>
+  <button data-page="fields" onclick="showPage('fields')">項目マスタ</button>
 </nav>
 
 <section id="input" class="active">
-  <h2>配信者を登録</h2>
+  <h2 id="inputTitle">配信者を登録</h2>
   <div id="inputFields"></div>
-  <button class="main" onclick="saveVtuber()">登録する</button>
+  <button class="main" id="saveButton" onclick="saveVtuber()">登録する</button>
+  <button class="main sub" id="cancelEditButton" onclick="cancelEdit()" style="display:none;">編集をキャンセル</button>
 </section>
 
 <section id="cards">
@@ -200,24 +203,33 @@ let fields = JSON.parse(localStorage.getItem("vtuberFields")) || [
 ];
 
 let vtubers = JSON.parse(localStorage.getItem("vtubers")) || [];
+let editingId = null;
 
 function saveData() {
   localStorage.setItem("vtuberFields", JSON.stringify(fields));
   localStorage.setItem("vtubers", JSON.stringify(vtubers));
 }
 
-function showPage(id, btn) {
+function showPage(id) {
   document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
   document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
+  const btn = document.querySelector(`nav button[data-page="${id}"]`);
+  if (btn) btn.classList.add("active");
 
   renderAll();
 }
 
 function renderInputFields() {
   const area = document.getElementById("inputFields");
+  const currentValues = {};
+
+  fields.forEach(field => {
+    const oldInput = document.getElementById("input_" + field.key);
+    if (oldInput) currentValues[field.key] = oldInput.value;
+  });
+
   area.innerHTML = "";
 
   fields.forEach(field => {
@@ -227,6 +239,7 @@ function renderInputFields() {
     const input = document.createElement("input");
     input.id = "input_" + field.key;
     input.placeholder = field.label;
+    input.value = currentValues[field.key] || "";
 
     area.appendChild(label);
     area.appendChild(input);
@@ -235,7 +248,7 @@ function renderInputFields() {
 
 function saveVtuber() {
   const data = {
-    id: Date.now().toString()
+    id: editingId || Date.now().toString()
   };
 
   fields.forEach(field => {
@@ -248,16 +261,65 @@ function saveVtuber() {
     return;
   }
 
-  vtubers.push(data);
-  saveData();
+  if (editingId) {
+    vtubers = vtubers.map(v => v.id === editingId ? data : v);
+    alert("更新しました");
+  } else {
+    vtubers.push(data);
+    alert("登録しました");
+  }
 
+  editingId = null;
+  saveData();
+  clearInput();
+  updateInputMode();
+  renderAll();
+  showPage("cards");
+}
+
+function editVtuber(id) {
+  const v = vtubers.find(item => item.id === id);
+  if (!v) return;
+
+  editingId = id;
+  showPage("input");
+
+  fields.forEach(field => {
+    const input = document.getElementById("input_" + field.key);
+    if (input) input.value = v[field.key] || "";
+  });
+
+  updateInputMode();
+}
+
+function cancelEdit() {
+  editingId = null;
+  clearInput();
+  updateInputMode();
+  renderAll();
+}
+
+function updateInputMode() {
+  const title = document.getElementById("inputTitle");
+  const saveButton = document.getElementById("saveButton");
+  const cancelButton = document.getElementById("cancelEditButton");
+
+  if (editingId) {
+    title.textContent = "配信者を編集";
+    saveButton.textContent = "更新する";
+    cancelButton.style.display = "block";
+  } else {
+    title.textContent = "配信者を登録";
+    saveButton.textContent = "登録する";
+    cancelButton.style.display = "none";
+  }
+}
+
+function clearInput() {
   fields.forEach(field => {
     const input = document.getElementById("input_" + field.key);
     if (input) input.value = "";
   });
-
-  alert("登録しました");
-  renderAll();
 }
 
 function renderCards() {
@@ -287,6 +349,12 @@ function renderCards() {
       card.appendChild(item);
     });
 
+    const edit = document.createElement("button");
+    edit.className = "main sub";
+    edit.textContent = "編集";
+    edit.onclick = () => editVtuber(v.id);
+    card.appendChild(edit);
+
     const del = document.createElement("button");
     del.className = "main danger";
     del.textContent = "この配信者を削除";
@@ -299,7 +367,15 @@ function renderCards() {
 
 function deleteVtuber(id) {
   if (!confirm("削除しますか？")) return;
+
   vtubers = vtubers.filter(v => v.id !== id);
+
+  if (editingId === id) {
+    editingId = null;
+    clearInput();
+    updateInputMode();
+  }
+
   saveData();
   renderAll();
 }
@@ -367,7 +443,7 @@ function moveField(index, direction) {
 function linkify(text) {
   if (!text) return "";
 
-  const escaped = text
+  const escaped = String(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
@@ -497,6 +573,7 @@ function renderAll() {
   renderCards();
   renderFieldList();
   renderCalendar();
+  updateInputMode();
 }
 
 renderAll();
